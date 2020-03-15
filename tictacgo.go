@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	. "github.com/er4z0r/games"
+	. "github.com/er4z0r/tictacgo/games"
 )
 
 func main() {
@@ -21,17 +21,17 @@ func main() {
 	//Prompt Player for coordinates
 	//Identify the winner
 
-	b.Set(Position{X: 0, Y: 0}, "o")
-	b.Set(Position{X: 0, Y: 1}, "x")
-	b.Set(Position{X: 0, Y: 2}, "x")
+	b.Set(0, 0, "o")
+	b.Set(0, 1, "x")
+	b.Set(0, 2, "x")
 
-	b.Set(Position{X: 1, Y: 0}, "x")
-	b.Set(Position{X: 1, Y: 1}, "o")
-	b.Set(Position{X: 1, Y: 2}, "x")
+	b.Set(1, 0, "x")
+	b.Set(1, 1, "o")
+	b.Set(1, 2, "x")
 
-	b.Set(Position{X: 2, Y: 0}, "x")
-	b.Set(Position{X: 2, Y: 1}, "x")
-	b.Set(Position{X: 2, Y: 2}, "o")
+	b.Set(2, 0, "x")
+	b.Set(2, 1, "x")
+	b.Set(2, 2, "o")
 
 	fmt.Printf("%v\n", b)
 }
