@@ -2,6 +2,14 @@ package games
 
 import "fmt"
 
+type Action int
+
+const (
+	Place Action = iota
+	Remove
+	Move
+)
+
 //GameLogic defines the functions required to decide
 type GameLogic interface {
 
@@ -10,6 +18,9 @@ type GameLogic interface {
 
 	//IsOver returns true, if a winner exists or there are no moves left
 	IsOver() bool
+
+	//IsOver returns true if Action with piece s can be conducted at the coords
+	IsLegal(a Action, p *Player, coords ...int) bool
 
 	//MovesRemaining returns an array of all remaining positions that the given player
 	//can set a game piece on
@@ -55,6 +66,30 @@ func (bl *BaseLogic) IsOver() bool {
 	return bl.GetWinner() != nil || bl.MovesRemaining() == 0
 }
 
+//IsLegal impelments the GameLogic interface
+func (bl *BaseLogic) IsLegal(a Action, p *Player, coords ...int) bool {
+	b := (*bl.board)
+	legal := false
+
+	switch a {
+	case Place:
+		fmt.Printf("Testing if Placement is legal: Position %v Player %v\n", coords, p)
+		legal = b.IsEmpty(coords[0], coords[1])
+	case Remove:
+		fmt.Printf("Testing if Removing is legal: Position %v Player %v\n", coords, p)
+		//we can only remove a piece, if there is a piece and
+		//we only may remove a piece, if it is ours
+		legal = !b.IsEmpty(coords[0], coords[1]) && b.Get(coords[0], coords[1]) == p.Symbol
+	case Move:
+		fmt.Printf("Testing if Moving is legal: From %v To %v Player %v\n", coords[0:2], coords[2:], p)
+		// see if we may take whats in place A and move it to place B
+		legal = bl.IsLegal(Remove, p, coords[0], coords[1]) && bl.IsLegal(Place, p, coords[2], coords[3])
+	default:
+		legal = false
+	}
+	return legal
+}
+
 //GetWinner implements the GameLogic interface
 func (bl *BaseLogic) GetWinner() *Player {
 	var winner *Player
@@ -81,7 +116,7 @@ func (bl *BaseLogic) checkHorizontally() *Player {
 	board = *bl.board
 	var streaking string = ""
 	streakLen := 0
-	fmt.Printf("---- Started Horizontal Check ----\n")
+	//fmt.Printf("---- Started Horizontal Check ----\n")
 	for x := 0; x < board.Height(); x++ {
 		//iterate over all fields in a row until
 		for y := 0; y < board.Width(); y++ {
@@ -92,15 +127,15 @@ func (bl *BaseLogic) checkHorizontally() *Player {
 				if s == streaking {
 					//increase length of current streak
 					streakLen++
-					fmt.Printf("Increased streakLen to %d\n", streakLen)
+					//fmt.Printf("Increased streakLen to %d\n", streakLen)
 				} else {
 					//start a new streak with that symbol
-					fmt.Printf("Started new streak for: %s. Starting at (%d,%d)\n", s, x, y)
+					//fmt.Printf("Started new streak for: %s. Starting at (%d,%d)\n", s, x, y)
 					streaking = s
 					streakLen = 1
 				}
 			} else {
-				fmt.Printf("Resetting streaks\n")
+				//fmt.Printf("Resetting streaks\n")
 				streaking = ""
 				streakLen = 0
 			}
@@ -110,7 +145,7 @@ func (bl *BaseLogic) checkHorizontally() *Player {
 		} //end y
 	} //end x
 
-	fmt.Printf("---- Finished Horizontal Check ----\n")
+	//fmt.Printf("---- Finished Horizontal Check ----\n")
 	//return a pointer to the player that has the winning symbol
 	return winner
 }
@@ -122,7 +157,7 @@ func (bl *BaseLogic) checkVertically() *Player {
 	board = *bl.board
 	var streaking string = ""
 	streakLen := 0
-	fmt.Printf("---- Started Vertical Check ----\n")
+	//fmt.Printf("---- Started Vertical Check ----\n")
 	for y := 0; y < board.Width(); y++ {
 		//iterate over all fields in a row until
 		for x := 0; x < board.Height(); x++ {
@@ -133,15 +168,15 @@ func (bl *BaseLogic) checkVertically() *Player {
 				if s == streaking {
 					//increase length of current streak
 					streakLen++
-					fmt.Printf("Increased streakLen to %d\n", streakLen)
+					//fmt.Printf("Increased streakLen to %d\n", streakLen)
 				} else {
 					//start a new streak with that symbol
-					fmt.Printf("Started new streak for: %s. Starting at (%d,%d)\n", s, x, y)
+					//fmt.Printf("Started new streak for: %s. Starting at (%d,%d)\n", s, x, y)
 					streaking = s
 					streakLen = 1
 				}
 			} else {
-				fmt.Printf("Resetting streaks\n")
+				//fmt.Printf("Resetting streaks\n")
 				streaking = ""
 				streakLen = 0
 			}
@@ -150,7 +185,7 @@ func (bl *BaseLogic) checkVertically() *Player {
 			}
 		}
 	}
-	fmt.Printf("---- Finished Vertical Check ----\n")
+	//fmt.Printf("---- Finished Vertical Check ----\n")
 	//return a pointer to the player that has the winning symbol
 	return winner
 }
