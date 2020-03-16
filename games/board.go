@@ -1,18 +1,16 @@
 package games
 
-//Position is a wrapper for coordinates on a board
-type Position struct {
-	X int
-	Y int
-}
-
 //Player has a name and Symbol
 type Player struct {
 	Name   string
 	Symbol string
 }
 
-//Board defines functions that a generic game board should implement
+//Board defines functions that a generic game board should implement.
+//A board is considered dumb. It does not implement any game logic.
+//It is merely a wrapper around the internal data structre.
+//The logic of the game should be enforced uinsg an implementation of the
+//GameLogic interface
 type Board interface {
 
 	// Init initalizes the board with a width of m and height of n fields
