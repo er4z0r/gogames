@@ -13,9 +13,6 @@ type Player struct {
 //GameLogic interface
 type Board interface {
 
-	// Init initalizes the board with a width of m and height of n fields
-	Init(m, n int)
-
 	// Height returns the vertical dimension (number of fields)
 	Height() int
 

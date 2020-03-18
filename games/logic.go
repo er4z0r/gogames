@@ -13,9 +13,6 @@ const (
 //GameLogic defines the functions required to decide
 type GameLogic interface {
 
-	//Init initializes
-	Init(b *Board, players ...*Player)
-
 	//IsOver returns true, if a winner exists or there are no moves left
 	IsOver() bool
 
@@ -36,14 +33,24 @@ type BaseLogic struct {
 	board   *Board
 }
 
-//Init implements the GameLogic interface
-func (bl *BaseLogic) Init(b *Board, players ...*Player) {
+//NewBaseLogic returns an initialized BaseLogic struct
+func NewBaseLogic(b *Board, players ...*Player) (*BaseLogic, error) {
+	bl := new(BaseLogic)
 	var p *Player
+
+	if players[0] == players[1] {
+		return nil, fmt.Errorf("you must supply two different players!")
+	}
+	if players[0].Symbol == players[1].Symbol {
+		return nil, fmt.Errorf("the two players must not have the same symbol")
+	}
+
 	bl.board = b
 	bl.players = make(map[string]*Player)
 	for _, p = range players {
 		bl.players[p.Symbol] = p
 	}
+	return bl, nil
 }
 
 //MovesRemaining implements the GameLogic interface

@@ -8,11 +8,16 @@ type Simple2DBoard struct {
 }
 
 // Init initializes a Simple2DBoard given two dimensions
-func (b *Simple2DBoard) Init(m, n int) {
+func NewSimple2DBoard(m, n int) (*Simple2DBoard, error) {
+	if n < 0 || m < 0 {
+		return nil, fmt.Errorf("Both width and height must be positive")
+	}
+	b := new(Simple2DBoard)
 	b.board = make([][]string, m)
 	for i := range b.board {
 		b.board[i] = make([]string, n)
 	}
+	return b, nil
 }
 
 // Set gaming piece at Position p
@@ -25,6 +30,8 @@ func (b *Simple2DBoard) Get(x, y int) string {
 	return b.board[x][y]
 }
 
+//IsEmpty returns true is the board at position x,y
+//is not occupied by a game piece
 func (b *Simple2DBoard) IsEmpty(x, y int) bool {
 	return b.board[x][y] == ""
 }
@@ -53,7 +60,10 @@ func (b *Simple2DBoard) Move(x1, y1, x2, y2 int) {
 
 // Reset board
 func (b *Simple2DBoard) Reset() {
-	b.Init(cap(b.board), cap(b.board[0]))
+	b.board = make([][]string, cap(b.board))
+	for i := range b.board {
+		b.board[i] = make([]string, cap(b.board[0]))
+	}
 }
 
 func (b *Simple2DBoard) String() string {

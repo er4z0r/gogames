@@ -4,36 +4,43 @@ import (
 	"testing"
 )
 
-func TestLogicInit(t *testing.T) {
+func TestNewBaseLogic(t *testing.T) {
 
 	var b Board
-	b = new(Simple2DBoard)
-	b.Init(3, 4)
+	b, _ = NewSimple2DBoard(3, 4)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l := new(BaseLogic)
-	l.Init(&b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 	if l.board != &b {
-		t.Errorf("Init failed. Pointer to board not assigned correctly. ")
+		t.Errorf("NewBaseLogic failed. Pointer to board not assigned correctly. ")
+	}
+
+	//test that we may not use the same player twice
+	pa := Player{Name: "Alice", Symbol: "o"}
+	l1, _ := NewBaseLogic(&b, &pa, &pa)
+	if l1 != nil {
+		t.Errorf("NewBaseLogic failed. Supplied (%v,%v,%v) Expected: %v Received: %v", &b, &pa, &pa, nil, l1)
 	}
 
 	//test that we may not use players with the same symbol
-	l1 := new(BaseLogic)
-	pa := Player{Name: "Alice", Symbol: "o"}
-	pb := Player{Name: "Bob", Symbol: "o"}
-	l1.Init(&b, &pa, &pb)
+	pa2 := Player{Name: "Alice", Symbol: "o"}
+	pb2 := Player{Name: "Bob", Symbol: "o"}
+	l2, _ := NewBaseLogic(&b, &pa2, &pb2)
+	if l2 != nil {
+		t.Errorf("NewBaseLogic failed. Supplied two players with same symbol. Expected: %v Received: %v", nil, l2)
+	}
 
 	e := 2
 	a := len(l.players)
 	if a != e {
-		t.Errorf("Init failed. Players not assigned corretly. Expected len(l.players)=%d. Got %d\n", e, a)
+		t.Errorf("NewBaseLogic failed. Players not assigned corretly. Expected len(l.players)=%d. Got %d\n", e, a)
 		t.Errorf("%v", l.players)
 	}
 
 	if l.players[p1.Symbol] != &p1 || l.players[p2.Symbol] != &p2 {
-		t.Error("Init failed. Players not stored correctly")
+		t.Error("NewBaseLogic failed. Players not stored correctly")
 	}
 }
 
@@ -41,15 +48,12 @@ func TestLogicInit(t *testing.T) {
 //can set a game piece on
 func TestMovesRemaining(t *testing.T) {
 	var b Board
-	b = new(Simple2DBoard)
-	b.Init(2, 2)
+	b, _ = NewSimple2DBoard(2, 2)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
-	p2 := Player{Name: "Bob", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	var l GameLogic
-	l = new(BaseLogic)
-	l.Init(&b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	e1 := 4
 	a1 := l.MovesRemaining()
@@ -74,20 +78,48 @@ func TestMovesRemaining(t *testing.T) {
 
 //IsOver returns true, if a winner exists or there are no moves left
 func TestIsOver(t *testing.T) {
+	var b Board
+	b, _ = NewSimple2DBoard(3, 3)
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	l, _ := NewBaseLogic(&b, &p1, &p2)
+	//Only test a draw as we are testing
+	//the other cases in the TestCheck...
+	//functions
+	//o|x|o
+	//x|o|x
+	//o|x|o
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 0, p1.Symbol)
+	b.Set(2, 1, p2.Symbol)
+	b.Set(2, 2, p1.Symbol)
+
+	e := true
+	a := l.IsOver()
+	if e != a {
+		t.Errorf("IsOver failed. The game has no moves left and no winner. Expected %t Got: %t", e, a)
+		t.Logf("\n%v\n", b)
+	}
 
 }
 
 func TestIsLegal(t *testing.T) {
 	var b Board
-	b = new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ = NewSimple2DBoard(3, 3)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	var l GameLogic
-	l = new(BaseLogic)
-	l.Init(&b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	//test, that we may place at an empty field
 	e := true
@@ -163,15 +195,12 @@ func TestIsLegal(t *testing.T) {
 //to the internal rules
 func TestCheckHorizontally(t *testing.T) {
 	var b Board
-	b = new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ = NewSimple2DBoard(3, 3)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	var l *BaseLogic
-	l = new(BaseLogic)
-	l.Init(&b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	var e1 *Player
 	b.Set(0, 0, p1.Symbol)
@@ -220,15 +249,12 @@ func TestCheckHorizontally(t *testing.T) {
 
 func TestCheckVerticaally(t *testing.T) {
 	var b Board
-	b = new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ = NewSimple2DBoard(3, 3)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	var l *BaseLogic
-	l = new(BaseLogic)
-	l.Init(&b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	var e1 *Player
 	b.Set(0, 0, p1.Symbol)

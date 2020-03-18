@@ -3,10 +3,9 @@ package games
 import "testing"
 import "fmt"
 
-func TestBoardInit(t *testing.T) {
+func TestNewSimple2DBoard(t *testing.T) {
 	t.Log("Creating 3x3 board")
-	b := new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ := NewSimple2DBoard(3, 3)
 	h := cap(b.board)
 	if h != 3 {
 		t.Error(fmt.Sprintf("Width incorrect after call to Init. Expected: %d , got %d", 3, h))
@@ -15,12 +14,21 @@ func TestBoardInit(t *testing.T) {
 	if w != 3 {
 		t.Error(fmt.Sprintf("Width incorrect after call to Init. Expected: %d , got %d", 3, w))
 	}
+
+	b1, _ := NewSimple2DBoard(-1, 3)
+	if b1 != nil {
+		t.Error("The width of a Simple2DBoard must not be negative")
+	}
+
+	b2, _ := NewSimple2DBoard(3, -1)
+	if b2 != nil {
+		t.Error("The height of a Simple2DBoard must not be negative")
+	}
 }
 
 func TestSet(t *testing.T) {
 	t.Log("Creating 3x3 board")
-	b := new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ := NewSimple2DBoard(3, 3)
 	b.Set(0, 0, "x")
 	s := b.board[0][0]
 	if s != "x" {
@@ -30,8 +38,7 @@ func TestSet(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Log("Creating 3x3 board")
-	b := new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ := NewSimple2DBoard(3, 3)
 	b.board[0][0] = "x"
 	s := b.Get(0, 0)
 	if s != "x" {
@@ -41,8 +48,7 @@ func TestGet(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	t.Log("Creating 3x3 board")
-	b := new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ := NewSimple2DBoard(3, 3)
 	b.board[0][0] = "x"
 	b.Remove(0, 0)
 	if b.board[0][0] == "x" {
@@ -52,8 +58,7 @@ func TestRemove(t *testing.T) {
 
 func TestMove(t *testing.T) {
 	t.Log("Creating 3x3 board")
-	b := new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ := NewSimple2DBoard(3, 3)
 	b.board[0][0] = "x"
 	b.Move(0, 0, 0, 1)
 	if b.board[0][0] == "x" {
@@ -66,9 +71,8 @@ func TestMove(t *testing.T) {
 
 func TestHeight(t *testing.T) {
 	t.Log("Creating 3x4 board")
-	b := new(Simple2DBoard)
 	exp := 4
-	b.Init(3, exp)
+	b, _ := NewSimple2DBoard(3, exp)
 	h := b.Height()
 	if h != exp {
 		t.Error(fmt.Sprintf("Height incorrect after call to Init. Expected: %d , got %d", exp, h))
@@ -77,9 +81,8 @@ func TestHeight(t *testing.T) {
 
 func TestWidth(t *testing.T) {
 	t.Log("Creating 3x4 board")
-	b := new(Simple2DBoard)
 	exp := 3
-	b.Init(exp, 4)
+	b, _ := NewSimple2DBoard(exp, 3)
 	w := b.Width()
 	if w != exp {
 		t.Error(fmt.Sprintf("Height incorrect after call to Init. Expected: %d , got %d", exp, w))
@@ -88,8 +91,7 @@ func TestWidth(t *testing.T) {
 
 func TestReset(t *testing.T) {
 	t.Log("Creating 3x3 board")
-	b := new(Simple2DBoard)
-	b.Init(3, 3)
+	b, _ := NewSimple2DBoard(3, 3)
 
 	b.board[0][0] = "x"
 	b.board[1][1] = "x"
