@@ -102,4 +102,8 @@ func TestReset(t *testing.T) {
 	if &b.board != addr {
 		t.Error("Reset failed. Board set to new array")
 	}
+
+	if &b.board == nil {
+		t.Error("Reset failed. Board set to new array")
+	}
 }

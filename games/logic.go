@@ -10,6 +10,13 @@ const (
 	Move
 )
 
+type Direction int
+
+const (
+	LeftRight Direction = iota
+	RightLeft
+)
+
 //GameLogic defines the functions required to decide
 type GameLogic interface {
 
@@ -39,7 +46,7 @@ func NewBaseLogic(b *Board, players ...*Player) (*BaseLogic, error) {
 	var p *Player
 
 	if players[0] == players[1] {
-		return nil, fmt.Errorf("you must supply two different players!")
+		return nil, fmt.Errorf("you must supply two different players")
 	}
 	if players[0].Symbol == players[1].Symbol {
 		return nil, fmt.Errorf("the two players must not have the same symbol")
@@ -198,5 +205,55 @@ func (bl *BaseLogic) checkVertically() *Player {
 }
 
 func (bl *BaseLogic) checkDiagonally() *Player {
+	b := (*bl.board)
+	var diagonal []string
+	var p *Player
+	for x := 0; x < b.Height(); x++ {
+		for y := 0; y < b.Height(); y++ {
+			diagonal = bl.getDiagonal(x, y, LeftRight)
+			p = bl.checkSlice(diagonal)
+			if p != nil {
+				return p
+			}
+			diagonal = bl.getDiagonal(x, y, RightLeft)
+			if p != nil {
+				return p
+			}
+		}
+	}
 	return nil
+}
+
+func (bl *BaseLogic) checkSlice(s []string) *Player {
+	var win *Player
+	var streaking string
+	streakLen := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] != streaking {
+			streaking = s[i]
+			streakLen = 1
+		} else {
+			streakLen++
+		}
+	}
+	if streakLen == 3 {
+		win = bl.players[streaking]
+	}
+	return win
+}
+
+func (bl *BaseLogic) getDiagonal(x, y int, d Direction) []string {
+	var pieces []string
+	b := (*bl.board)
+	var x1, y1 int
+	if d == LeftRight {
+		for x1, y1 = x, y; x1 < b.Height() && y1 < b.Width(); x1, y1 = x1+1, y1+1 {
+			pieces = append(pieces, b.Get(x1, y1))
+		}
+	} else if d == RightLeft {
+		for x1, y1 = x, y; x1 < b.Height() && y1 >= 0; x1, y1 = x1+1, y1-1 {
+			pieces = append(pieces, b.Get(x1, y1))
+		}
+	}
+	return pieces
 }

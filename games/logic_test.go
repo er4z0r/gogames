@@ -1,6 +1,7 @@
 package games
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -88,20 +89,21 @@ func TestIsOver(t *testing.T) {
 	//Only test a draw as we are testing
 	//the other cases in the TestCheck...
 	//functions
-	//o|x|o
-	//x|o|x
+
+	//o|x|x
+	//x|o|o
 	//o|x|o
 	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
-
 	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
 	b.Set(2, 0, p1.Symbol)
+
+	b.Set(0, 1, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
 	b.Set(2, 1, p2.Symbol)
+
 	b.Set(2, 2, p1.Symbol)
+	b.Set(0, 2, p2.Symbol)
+	b.Set(1, 2, p1.Symbol)
 
 	e := true
 	a := l.IsOver()
@@ -109,7 +111,6 @@ func TestIsOver(t *testing.T) {
 		t.Errorf("IsOver failed. The game has no moves left and no winner. Expected %t Got: %t", e, a)
 		t.Logf("\n%v\n", b)
 	}
-
 }
 
 func TestIsLegal(t *testing.T) {
@@ -298,5 +299,140 @@ func TestCheckVerticaally(t *testing.T) {
 	if a5 != e5 {
 		t.Errorf("Game ended too late. CheckVerticaally returned %p expected: %p", a5, e5)
 		t.Logf("\n%v\n", b)
+	}
+}
+
+func TestCheckDiagonally(t *testing.T) {
+	var b Board
+	b, _ = NewSimple2DBoard(3, 3)
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	l, _ := NewBaseLogic(&b, &p1, &p2)
+	//o|x|o
+	//x|o|x
+	//x|o|o
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 2, p1.Symbol)
+	b.Set(2, 0, p2.Symbol)
+	b.Set(2, 1, p1.Symbol)
+
+	e1 := &p1
+	a1 := l.checkDiagonally()
+	if a1 != e1 {
+		t.Errorf("Game ended too early. CheckDiagonally returned %p expected: %p", a1, e1)
+		t.Logf("\n%v\n", b)
+	}
+
+	//o|x|o
+	//x|o|x
+	//o|o|x
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 0, p1.Symbol)
+	b.Set(2, 1, p2.Symbol)
+	b.Set(2, 2, p1.Symbol)
+
+	e2 := &p1
+	a2 := l.checkDiagonally()
+	if a2 != e2 {
+		t.Errorf("Game ended too early. CheckDiagonally returned %p expected: %p", a1, e1)
+		t.Logf("\n%v\n", b)
+	}
+}
+
+func TestGetDiagonal(t *testing.T) {
+	var b Board
+	b, _ = NewSimple2DBoard(3, 3)
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	l, _ := NewBaseLogic(&b, &p1, &p2)
+	//o|x|o
+	//x|o|x
+	//x|o|o
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 2, p1.Symbol)
+	b.Set(2, 0, p2.Symbol)
+	b.Set(2, 1, p1.Symbol)
+
+	e2 := []string{"o", "o", "o"}
+	a2 := l.getDiagonal(0, 0, LeftRight)
+	if !reflect.DeepEqual(e2, a2) {
+		t.Errorf("TestGetDiagonal returned %v expected: %v", a2, e2)
+		t.Logf("\n%v\n", b)
+	}
+
+	b, _ = NewSimple2DBoard(3, 3)
+	//o|x|o
+	//x|o|x
+	//o|o|x
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 0, p1.Symbol)
+	b.Set(2, 2, p2.Symbol)
+	b.Set(2, 1, p1.Symbol)
+
+	e3 := []string{"o", "o", "o"}
+	a3 := l.getDiagonal(0, 2, RightLeft)
+	if !reflect.DeepEqual(e3, a3) {
+		t.Errorf("TestGetDiagonal returned %v expected: %v", a3, e3)
+		t.Logf("\n%v\n", b)
+	}
+
+	e4 := []string{"x", "o"}
+	a4 := l.getDiagonal(1, 0, LeftRight)
+	if !reflect.DeepEqual(e4, a4) {
+		t.Errorf("TestGetDiagonal returned %v expected: %v", a4, e4)
+		t.Logf("\n%v\n", b)
+	}
+
+	e5 := []string{"x", "o"}
+	a5 := l.getDiagonal(1, 2, RightLeft)
+	if !reflect.DeepEqual(e5, a5) {
+		t.Errorf("TestGetDiagonal returned %v expected: %v", a5, e5)
+		t.Logf("\n%v\n", b)
+	}
+}
+
+func TestCheckSlice(t *testing.T) {
+	var b Board
+	b, _ = NewSimple2DBoard(3, 3)
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	l, _ := NewBaseLogic(&b, &p1, &p2)
+	a := l.checkSlice([]string{"x", "x", "x"})
+	if a != &p2 {
+		t.Errorf("TestCheckSlice returned %p expected %p", a, &p2)
 	}
 }
