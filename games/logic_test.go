@@ -192,6 +192,121 @@ func TestIsLegal(t *testing.T) {
 
 }
 
+func TestGetWinnerVertically(t *testing.T) {
+	var b Board
+	var l GameLogic
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	b, _ = NewSimple2DBoard(3, 3)
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+	//o|x|
+	//o|x|
+	//o| |
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(1, 0, p1.Symbol)
+	b.Set(1, 1, p2.Symbol)
+	b.Set(2, 0, p1.Symbol)
+	e3 := &p1
+	a3 := l.GetWinner()
+	if a3 != e3 {
+		t.Errorf("TestGetWinnerVertically failed. Returned %p expected: %p", a3, e3)
+		t.Logf("\n%v\n", b)
+	}
+
+}
+
+func TestGetWinnerHorizontally(t *testing.T) {
+	var b Board
+	var l GameLogic
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	b, _ = NewSimple2DBoard(3, 3)
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+
+	//o|o|o
+	//x| |
+	//x| |
+	b.Set(0, 0, p1.Symbol)
+	b.Set(1, 0, p2.Symbol)
+	b.Set(0, 1, p1.Symbol)
+	b.Set(2, 0, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+	e2 := &p1
+	a2 := l.GetWinner()
+	if a2 != e2 {
+		t.Errorf("TestGetWinnerHorizontally failed. Returned %p expected: %p", a2, e2)
+		t.Logf("\n%v\n", b)
+	}
+}
+
+func TestGetWinnerDiagonalLeftRight(t *testing.T) {
+	var b Board
+	var l GameLogic
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	b, _ = NewSimple2DBoard(3, 3)
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+	//o|x|o
+	//x|o|x
+	//x|o|o
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 2, p1.Symbol)
+	b.Set(2, 0, p2.Symbol)
+	b.Set(2, 1, p1.Symbol)
+
+	e1 := &p1
+	a1 := l.GetWinner()
+	if a1 != e1 {
+		t.Errorf("TestGetWinnerDiagonalLeftRight failed. Returned %v expected: %v", a1, e1)
+		t.Logf("\n%v\n", b)
+	}
+}
+
+func TestGetWinnerDiagonalRightLeft(t *testing.T) {
+	var b Board
+	var l GameLogic
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	b, _ = NewSimple2DBoard(3, 3)
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+	//o|x|o
+	//x|o|x
+	//o|o|x
+	b.Set(0, 0, p1.Symbol)
+	b.Set(0, 1, p2.Symbol)
+	b.Set(0, 2, p1.Symbol)
+
+	b.Set(1, 0, p2.Symbol)
+	b.Set(1, 1, p1.Symbol)
+	b.Set(1, 2, p2.Symbol)
+
+	b.Set(2, 0, p1.Symbol)
+	b.Set(2, 1, p2.Symbol)
+	b.Set(2, 2, p1.Symbol)
+
+	e4 := &p1
+	a4 := l.GetWinner()
+	if a4 != e4 {
+		t.Errorf("TestGetWinnerDiagonalRightLeft failed. Returned %v expected: %v", a4, e4)
+		t.Logf("\n%v\n", b)
+	}
+}
+
 //GetWinner returns a pointer to the player that has won the game according
 //to the internal rules
 func TestCheckHorizontally(t *testing.T) {
@@ -209,7 +324,6 @@ func TestCheckHorizontally(t *testing.T) {
 	if a1 != e1 {
 		t.Errorf("Game ended too early. CheckHorizontally returned %p expected: %p", a1, e1)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e2 *Player
@@ -218,7 +332,6 @@ func TestCheckHorizontally(t *testing.T) {
 	if a2 != e2 {
 		t.Errorf("Game ended too early. CheckHorizontally returned %p expected: %p", a2, e2)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e3 *Player
@@ -227,7 +340,6 @@ func TestCheckHorizontally(t *testing.T) {
 	if a3 != e3 {
 		t.Errorf("Game ended too early. CheckHorizontally returned %p expected: %p", a3, e3)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e4 *Player
@@ -236,7 +348,6 @@ func TestCheckHorizontally(t *testing.T) {
 	if a4 != e4 {
 		t.Errorf("Game ended too late. CheckHorizontally returned %p expected: %p", a4, e4)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e5 = &p1
@@ -263,7 +374,6 @@ func TestCheckVerticaally(t *testing.T) {
 	if a1 != e1 {
 		t.Errorf("Game ended too early. CheckVerticaally returned %p expected: %p", a1, e1)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e2 *Player
@@ -272,7 +382,6 @@ func TestCheckVerticaally(t *testing.T) {
 	if a2 != e2 {
 		t.Errorf("Game ended too early. CheckVerticaally returned %p expected: %p", a2, e2)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e3 *Player
@@ -281,7 +390,6 @@ func TestCheckVerticaally(t *testing.T) {
 	if a3 != e3 {
 		t.Errorf("Game ended too early. CheckVerticaally returned %p expected: %p", a3, e3)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e4 *Player
@@ -290,7 +398,6 @@ func TestCheckVerticaally(t *testing.T) {
 	if a4 != e4 {
 		t.Errorf("Game ended too late. CheckVerticaally returned %p expected: %p", a4, e4)
 		t.Logf("\n%v\n", b)
-
 	}
 
 	var e5 = &p1
@@ -350,12 +457,12 @@ func TestCheckDiagonally(t *testing.T) {
 	e2 := &p1
 	a2 := l.checkDiagonally()
 	if a2 != e2 {
-		t.Errorf("Game ended too early. CheckDiagonally returned %p expected: %p", a1, e1)
+		t.Errorf("Game ended too early. CheckDiagonally returned %p expected: %p", a2, e2)
 		t.Logf("\n%v\n", b)
 	}
 }
 
-func TestGetDiagonal(t *testing.T) {
+func TestGetDiagonalLeftRight(t *testing.T) {
 	var b Board
 	b, _ = NewSimple2DBoard(3, 3)
 
@@ -378,13 +485,37 @@ func TestGetDiagonal(t *testing.T) {
 	b.Set(2, 0, p2.Symbol)
 	b.Set(2, 1, p1.Symbol)
 
-	e2 := []string{"o", "o", "o"}
-	a2 := l.getDiagonal(0, 0, LeftRight)
+	e1 := []string{"o", "o", "o"}
+	a1 := l.getDiagonal(0, 0, LeftRight)
+	if !reflect.DeepEqual(e1, a1) {
+		t.Errorf("TestGetDiagonal returned %v expected: %v", a1, e1)
+		t.Logf("\n%v\n", b)
+	}
+
+	e2 := []string{"x", "x"}
+	a2 := l.getDiagonal(0, 1, LeftRight)
 	if !reflect.DeepEqual(e2, a2) {
 		t.Errorf("TestGetDiagonal returned %v expected: %v", a2, e2)
 		t.Logf("\n%v\n", b)
 	}
 
+	e3 := []string{"x", "o"}
+	a3 := l.getDiagonal(1, 0, LeftRight)
+	if !reflect.DeepEqual(e3, a3) {
+		t.Errorf("TestGetDiagonal returned %v expected: %v", a3, e3)
+		t.Logf("\n%v\n", b)
+	}
+
+}
+
+func TestGetDiagonalRightLeft(t *testing.T) {
+	var b Board
+	b, _ = NewSimple2DBoard(3, 3)
+
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 	b, _ = NewSimple2DBoard(3, 3)
 	//o|x|o
 	//x|o|x
@@ -401,24 +532,24 @@ func TestGetDiagonal(t *testing.T) {
 	b.Set(2, 2, p2.Symbol)
 	b.Set(2, 1, p1.Symbol)
 
-	e3 := []string{"o", "o", "o"}
-	a3 := l.getDiagonal(0, 2, RightLeft)
+	e1 := []string{"o", "o", "o"}
+	a1 := l.getDiagonal(0, 2, RightLeft)
+	if !reflect.DeepEqual(e1, a1) {
+		t.Errorf("TestGetDiagonalRightLeft returned %v expected: %v", a1, e1)
+		t.Logf("\n%v\n", b)
+	}
+
+	e2 := []string{"x", "x"}
+	a2 := l.getDiagonal(0, 1, RightLeft)
+	if !reflect.DeepEqual(e2, a2) {
+		t.Errorf("TestGetDiagonalRightLeft returned %v expected: %v", a2, e2)
+		t.Logf("\n%v\n", b)
+	}
+
+	e3 := []string{"x", "o"}
+	a3 := l.getDiagonal(1, 2, RightLeft)
 	if !reflect.DeepEqual(e3, a3) {
-		t.Errorf("TestGetDiagonal returned %v expected: %v", a3, e3)
-		t.Logf("\n%v\n", b)
-	}
-
-	e4 := []string{"x", "o"}
-	a4 := l.getDiagonal(1, 0, LeftRight)
-	if !reflect.DeepEqual(e4, a4) {
-		t.Errorf("TestGetDiagonal returned %v expected: %v", a4, e4)
-		t.Logf("\n%v\n", b)
-	}
-
-	e5 := []string{"x", "o"}
-	a5 := l.getDiagonal(1, 2, RightLeft)
-	if !reflect.DeepEqual(e5, a5) {
-		t.Errorf("TestGetDiagonal returned %v expected: %v", a5, e5)
+		t.Errorf("TestGetDiagonalRightLeft returned %v expected: %v", a3, e3)
 		t.Logf("\n%v\n", b)
 	}
 }
