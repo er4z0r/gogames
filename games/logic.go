@@ -208,14 +208,15 @@ func (bl *BaseLogic) checkDiagonally() *Player {
 	b := (*bl.board)
 	var diagonal []string
 	var p *Player
-	for x := 0; x < b.Height(); x++ {
-		for y := 0; y < b.Height(); y++ {
+	for y := 0; y < b.Height(); y++ {
+		for x := 0; x < b.Width(); x++ {
 			diagonal = bl.getDiagonal(x, y, LeftRight)
 			p = bl.checkSlice(diagonal)
 			if p != nil {
 				return p
 			}
 			diagonal = bl.getDiagonal(x, y, RightLeft)
+			p = bl.checkSlice(diagonal)
 			if p != nil {
 				return p
 			}
@@ -226,6 +227,7 @@ func (bl *BaseLogic) checkDiagonally() *Player {
 
 func (bl *BaseLogic) checkSlice(s []string) *Player {
 	var win *Player
+	fmt.Printf("CheckSlice: %v\n", s)
 	var streaking string
 	streakLen := 0
 	for i := 0; i < len(s); i++ {
@@ -247,13 +249,16 @@ func (bl *BaseLogic) getDiagonal(x, y int, d Direction) []string {
 	b := (*bl.board)
 	var x1, y1 int
 	if d == LeftRight {
+		fmt.Printf("Getting the LeftRight diagonal starting at (%d,%d)\n", x, y)
 		for x1, y1 = x, y; x1 < b.Height() && y1 < b.Width(); x1, y1 = x1+1, y1+1 {
 			pieces = append(pieces, b.Get(x1, y1))
 		}
 	} else if d == RightLeft {
+		fmt.Printf("Getting the RightLeft diagonal starting at (%d,%d)\n", x, y)
 		for x1, y1 = x, y; x1 < b.Height() && y1 >= 0; x1, y1 = x1+1, y1-1 {
 			pieces = append(pieces, b.Get(x1, y1))
 		}
 	}
+	fmt.Printf("Diagonal (%d,%d):%v\n", x, y, pieces)
 	return pieces
 }
