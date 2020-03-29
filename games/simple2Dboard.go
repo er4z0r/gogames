@@ -7,16 +7,20 @@ import (
 
 // Simple2DBoard is a simple 2D board with a 2D string array
 type Simple2DBoard struct {
-	board [][]string
+	board  [][]string
+	height int
+	width  int
 }
 
 // JSONSimple2DBoard is used when generating a JSON representation
 type JSONSimple2DBoard struct {
-	Board [][]string
+	Board  [][]string
+	Height int
+	Width  int
 }
 
 func (js JSONSimple2DBoard) Simple2DBoard() Simple2DBoard {
-	return Simple2DBoard{board: js.Board}
+	return Simple2DBoard{board: js.Board, height: js.Height, width: js.Width}
 }
 
 // NewSimple2DBoard initializes a Simple2DBoard given two dimensions
@@ -29,11 +33,13 @@ func NewSimple2DBoard(m, n int) (*Simple2DBoard, error) {
 	for i := range b.board {
 		b.board[i] = make([]string, n)
 	}
+	b.height = n
+	b.width = m
 	return b, nil
 }
 
 func NewJSONSimple2DBoard(s Simple2DBoard) JSONSimple2DBoard {
-	return JSONSimple2DBoard{s.board}
+	return JSONSimple2DBoard{s.board, s.height, s.width}
 }
 
 // Set gaming piece at Position p
@@ -54,12 +60,12 @@ func (b *Simple2DBoard) IsEmpty(x, y int) bool {
 
 //Width implements the Board infetface
 func (b *Simple2DBoard) Width() int {
-	return cap(b.board)
+	return b.width
 }
 
 //Height implements the Board infetface
 func (b *Simple2DBoard) Height() int {
-	return cap(b.board[0])
+	return b.height
 }
 
 // Remove gaming piece

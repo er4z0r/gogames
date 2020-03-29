@@ -1,6 +1,7 @@
 package games
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 )
@@ -13,14 +14,14 @@ func TestNewBaseLogic(t *testing.T) {
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
-	if l.board != &b {
+	l, _ := NewBaseLogic(b, &p1, &p2)
+	if l.board != b {
 		t.Errorf("NewBaseLogic failed. Pointer to board not assigned correctly. ")
 	}
 
 	//test that we may not use the same player twice
 	pa := Player{Name: "Alice", Symbol: "o"}
-	l1, _ := NewBaseLogic(&b, &pa, &pa)
+	l1, _ := NewBaseLogic(b, &pa, &pa)
 	if l1 != nil {
 		t.Errorf("NewBaseLogic failed. Supplied (%v,%v,%v) Expected: %v Received: %v", &b, &pa, &pa, nil, l1)
 	}
@@ -28,7 +29,7 @@ func TestNewBaseLogic(t *testing.T) {
 	//test that we may not use players with the same symbol
 	pa2 := Player{Name: "Alice", Symbol: "o"}
 	pb2 := Player{Name: "Bob", Symbol: "o"}
-	l2, _ := NewBaseLogic(&b, &pa2, &pb2)
+	l2, _ := NewBaseLogic(b, &pa2, &pb2)
 	if l2 != nil {
 		t.Errorf("NewBaseLogic failed. Supplied two players with same symbol. Expected: %v Received: %v", nil, l2)
 	}
@@ -54,7 +55,7 @@ func TestMovesRemaining(t *testing.T) {
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
+	l, _ := NewBaseLogic(b, &p1, &p2)
 
 	e1 := 4
 	a1 := l.MovesRemaining()
@@ -79,31 +80,24 @@ func TestMovesRemaining(t *testing.T) {
 
 //IsOver returns true, if a winner exists or there are no moves left
 func TestIsOver(t *testing.T) {
-	var b Board
-	b, _ = NewSimple2DBoard(3, 3)
+	var b Simple2DBoard
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
-	//Only test a draw as we are testing
-	//the other cases in the TestCheck...
-	//functions
-
 	//o|x|x
 	//x|o|o
 	//o|x|o
-	b.Set(0, 0, p1.Symbol)
-	b.Set(1, 0, p2.Symbol)
-	b.Set(2, 0, p1.Symbol)
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","x"],
+		["x","o","o"],
+		["o","x","o"]],
+		"Width":3,
+		"Height":3}`), &b)
 
-	b.Set(0, 1, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(2, 1, p2.Symbol)
+	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
 
-	b.Set(2, 2, p1.Symbol)
-	b.Set(0, 2, p2.Symbol)
-	b.Set(1, 2, p1.Symbol)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	e := true
 	a := l.IsOver()
@@ -120,7 +114,7 @@ func TestIsLegal(t *testing.T) {
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
+	l, _ := NewBaseLogic(b, &p1, &p2)
 
 	//test, that we may place at an empty field
 	e := true
@@ -193,48 +187,50 @@ func TestIsLegal(t *testing.T) {
 }
 
 func TestGetWinnerVertically(t *testing.T) {
-	var b Board
+	var b Simple2DBoard
 	var l GameLogic
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	b, _ = NewSimple2DBoard(3, 3)
-	l, _ = NewBaseLogic(&b, &p1, &p2)
 	//o|x|
 	//o|x|
 	//o| |
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(1, 0, p1.Symbol)
-	b.Set(1, 1, p2.Symbol)
-	b.Set(2, 0, p1.Symbol)
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x",""],
+		["o","x",""],
+		["o","",""]], "Width":3, "Height":3}`), &b)
+
+	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
+
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+
 	e3 := &p1
 	a3 := l.GetWinner()
 	if a3 != e3 {
 		t.Errorf("TestGetWinnerVertically failed. Returned %p expected: %p", a3, e3)
 		t.Logf("\n%v\n", b)
 	}
-
 }
 
 func TestGetWinnerHorizontally(t *testing.T) {
-	var b Board
+	var b Simple2DBoard
 	var l GameLogic
+
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
-
-	b, _ = NewSimple2DBoard(3, 3)
-	l, _ = NewBaseLogic(&b, &p1, &p2)
-
 	//o|o|o
 	//x| |
 	//x| |
-	b.Set(0, 0, p1.Symbol)
-	b.Set(1, 0, p2.Symbol)
-	b.Set(0, 1, p1.Symbol)
-	b.Set(2, 0, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
+	json.Unmarshal([]byte(`{"Board":[
+		["o","o","o"],
+		["x","",""],
+		["x","",""]], "Width":3, "Height":3}`), &b)
+
+	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
+
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+
 	e2 := &p1
 	a2 := l.GetWinner()
 	if a2 != e2 {
@@ -244,28 +240,21 @@ func TestGetWinnerHorizontally(t *testing.T) {
 }
 
 func TestGetWinnerDiagonalLeftRight(t *testing.T) {
-	var b Board
+	var b Simple2DBoard
 	var l GameLogic
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
-
-	b, _ = NewSimple2DBoard(3, 3)
-	l, _ = NewBaseLogic(&b, &p1, &p2)
 	//o|x|o
 	//x|o|x
 	//x|o|o
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","o"],
+		["x","o","x"],
+		["x","o","o"]], "Width":3, "Height":3}`), &b)
 
-	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
-	b.Set(2, 2, p1.Symbol)
-	b.Set(2, 0, p2.Symbol)
-	b.Set(2, 1, p1.Symbol)
+	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
+	l, _ = NewBaseLogic(&b, &p1, &p2)
 
 	e1 := &p1
 	a1 := l.GetWinner()
@@ -276,28 +265,22 @@ func TestGetWinnerDiagonalLeftRight(t *testing.T) {
 }
 
 func TestGetWinnerDiagonalRightLeft(t *testing.T) {
-	var b Board
 	var l GameLogic
+	var b Simple2DBoard
+	//o|x|o
+	//x|o|x
+	//o|o|x
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","o"],
+		["x","o","x"],
+		["o","o","x"]], "Width":3, "Height":3}`), &b)
+
+	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	b, _ = NewSimple2DBoard(3, 3)
 	l, _ = NewBaseLogic(&b, &p1, &p2)
-	//o|x|o
-	//x|o|x
-	//o|o|x
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
-
-	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
-	b.Set(2, 0, p1.Symbol)
-	b.Set(2, 1, p2.Symbol)
-	b.Set(2, 2, p1.Symbol)
 
 	e4 := &p1
 	a4 := l.GetWinner()
@@ -316,7 +299,7 @@ func TestCheckHorizontally(t *testing.T) {
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
+	l, _ := NewBaseLogic(b, &p1, &p2)
 
 	var e1 *Player
 	b.Set(0, 0, p1.Symbol)
@@ -366,7 +349,7 @@ func TestCheckVerticaally(t *testing.T) {
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
+	l, _ := NewBaseLogic(b, &p1, &p2)
 
 	var e1 *Player
 	b.Set(0, 0, p1.Symbol)
@@ -410,27 +393,18 @@ func TestCheckVerticaally(t *testing.T) {
 }
 
 func TestCheckDiagonally(t *testing.T) {
-	var b Board
-	b, _ = NewSimple2DBoard(3, 3)
-
-	p1 := Player{Name: "Alice", Symbol: "o"}
-	p2 := Player{Name: "Bob", Symbol: "x"}
-
-	l, _ := NewBaseLogic(&b, &p1, &p2)
+	var b Simple2DBoard
 	//o|x|o
 	//x|o|x
 	//x|o|o
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","o"],
+		["x","o","x"],
+		["x","o","o"]], "Width":3, "Height":3}`), &b)
 
-	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
-	b.Set(2, 2, p1.Symbol)
-	b.Set(2, 0, p2.Symbol)
-	b.Set(2, 1, p1.Symbol)
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	e1 := &p1
 	a1 := l.checkDiagonally()
@@ -442,17 +416,11 @@ func TestCheckDiagonally(t *testing.T) {
 	//o|x|o
 	//x|o|x
 	//o|o|x
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
-
-	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
-	b.Set(2, 0, p1.Symbol)
-	b.Set(2, 1, p2.Symbol)
-	b.Set(2, 2, p1.Symbol)
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","o"],
+		["x","o","x"],
+		["o","o","x"]], "Width":3, "Height":3}`), &b)
+	l.board = &b
 
 	e2 := &p1
 	a2 := l.checkDiagonally()
@@ -463,27 +431,19 @@ func TestCheckDiagonally(t *testing.T) {
 }
 
 func TestGetDiagonalLeftRight(t *testing.T) {
-	var b Board
-	b, _ = NewSimple2DBoard(3, 3)
+	//o|x|o
+	//x|o|x
+	//x|o|o
+	var b Simple2DBoard
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","o"],
+		["x","o","x"],
+		["x","o","o"]], "Width":3, "Height":3}`), &b)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
 	l, _ := NewBaseLogic(&b, &p1, &p2)
-	//o|x|o
-	//x|o|x
-	//x|o|o
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
-
-	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
-	b.Set(2, 2, p1.Symbol)
-	b.Set(2, 0, p2.Symbol)
-	b.Set(2, 1, p1.Symbol)
 
 	e1 := []string{"o", "o", "o"}
 	a1 := l.getDiagonal(0, 0, LeftRight)
@@ -505,32 +465,23 @@ func TestGetDiagonalLeftRight(t *testing.T) {
 		t.Errorf("TestGetDiagonal returned %v expected: %v", a3, e3)
 		t.Logf("\n%v\n", b)
 	}
-
 }
 
 func TestGetDiagonalRightLeft(t *testing.T) {
-	var b Board
-	b, _ = NewSimple2DBoard(3, 3)
+
+	//o|x|o
+	//x|o|x
+	//o|o|x
+	var b Simple2DBoard
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x","o"],
+		["x","o","x"],
+		["o","o","x"]], "Width":3, "Height":3}`), &b)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
 	l, _ := NewBaseLogic(&b, &p1, &p2)
-	b, _ = NewSimple2DBoard(3, 3)
-	//o|x|o
-	//x|o|x
-	//o|o|x
-	b.Set(0, 0, p1.Symbol)
-	b.Set(0, 1, p2.Symbol)
-	b.Set(0, 2, p1.Symbol)
-
-	b.Set(1, 0, p2.Symbol)
-	b.Set(1, 1, p1.Symbol)
-	b.Set(1, 2, p2.Symbol)
-
-	b.Set(2, 0, p1.Symbol)
-	b.Set(2, 2, p2.Symbol)
-	b.Set(2, 1, p1.Symbol)
 
 	e1 := []string{"o", "o", "o"}
 	a1 := l.getDiagonal(0, 2, RightLeft)
@@ -561,7 +512,7 @@ func TestCheckSlice(t *testing.T) {
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(&b, &p1, &p2)
+	l, _ := NewBaseLogic(b, &p1, &p2)
 	a := l.checkSlice([]string{"x", "x", "x"})
 	if a != &p2 {
 		t.Errorf("TestCheckSlice returned %p expected %p", a, &p2)

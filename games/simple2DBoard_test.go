@@ -123,13 +123,35 @@ func TestMarshalJSON(t *testing.T) {
 	j, _ := json.Marshal(b)
 	fmt.Println(string(j))
 
+}
+
+func TestUnMarshalJSON(t *testing.T) {
+	var e *Simple2DBoard
 	var a Simple2DBoard
-	e := json.Unmarshal([]byte(`{"Board":[
+
+	e, _ = NewSimple2DBoard(3, 3)
+
+	e.board[0][0] = "x"
+	e.board[1][1] = "x"
+	e.board[2][2] = "x"
+
+	j := []byte(`{"Board":[
 		["x","",""],
 		["","x",""],
-		["","","x"]]}`), &a)
+		["","","x"]], "Width":3, "Height":3 }`)
+	err := json.Unmarshal(j, &a)
 
-	if e != nil || !reflect.DeepEqual(b, &a) {
-		t.Errorf("Unmarshalling previously marshalled Simpel2DBoard failed.JSON: %s Expected: \n%v\n (%T) got \n%v\n (%T)", j, b, b, &a, &a)
+	if err != nil || !reflect.DeepEqual(e, &a) {
+		t.Errorf("Unmarshalling previously marshalled Simpel2DBoard failed.JSON: %s Expected: \n%v\n (%T) got \n%v\n (%T)", j, e, e, &a, &a)
+	}
+
+	eh := 3
+	if a.Height() != eh {
+		t.Errorf("Unmarshaling failed: Board Height is incorrect. Exepected: %d Received: %d", eh, a.Height())
+	}
+
+	ew := 3
+	if a.Width() != ew {
+		t.Errorf("Unmarshaling failed: Board Width is incorrect. Exepected: %d Received: %d", ew, a.Width())
 	}
 }

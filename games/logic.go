@@ -37,11 +37,11 @@ type GameLogic interface {
 
 type BaseLogic struct {
 	players map[string]*Player
-	board   *Board
+	board   Board
 }
 
 //NewBaseLogic returns an initialized BaseLogic struct
-func NewBaseLogic(b *Board, players ...*Player) (*BaseLogic, error) {
+func NewBaseLogic(b Board, players ...*Player) (*BaseLogic, error) {
 	bl := new(BaseLogic)
 	var p *Player
 
@@ -63,11 +63,9 @@ func NewBaseLogic(b *Board, players ...*Player) (*BaseLogic, error) {
 //MovesRemaining implements the GameLogic interface
 func (bl *BaseLogic) MovesRemaining() int {
 	moves := 0
-	var board Board
-	board = *bl.board
-	for y := 0; y < board.Height(); y++ {
-		for x := 0; x < board.Width(); x++ {
-			if (*bl.board).IsEmpty(x, y) {
+	for y := 0; y < bl.board.Height(); y++ {
+		for x := 0; x < bl.board.Width(); x++ {
+			if bl.board.IsEmpty(x, y) {
 				moves++
 			}
 		}
@@ -82,20 +80,19 @@ func (bl *BaseLogic) IsOver() bool {
 
 //IsLegal impelments the GameLogic interface
 func (bl *BaseLogic) IsLegal(a Action, p *Player, coords ...int) bool {
-	b := (*bl.board)
-	legal := false
+	var legal bool
 
 	switch a {
 	case Place:
-		fmt.Printf("Testing if Placement is legal: Position %v Player %v\n", coords, p)
-		legal = b.IsEmpty(coords[0], coords[1])
+		//		fmt.Printf("Testing if Placement is legal: Position %v Player %v\n", coords, p)
+		legal = bl.board.IsEmpty(coords[0], coords[1])
 	case Remove:
-		fmt.Printf("Testing if Removing is legal: Position %v Player %v\n", coords, p)
+		//		fmt.Printf("Testing if Removing is legal: Position %v Player %v\n", coords, p)
 		//we can only remove a piece, if there is a piece and
 		//we only may remove a piece, if it is ours
-		legal = !b.IsEmpty(coords[0], coords[1]) && b.Get(coords[0], coords[1]) == p.Symbol
+		legal = !bl.board.IsEmpty(coords[0], coords[1]) && bl.board.Get(coords[0], coords[1]) == p.Symbol
 	case Move:
-		fmt.Printf("Testing if Moving is legal: From %v To %v Player %v\n", coords[0:2], coords[2:], p)
+		//		fmt.Printf("Testing if Moving is legal: From %v To %v Player %v\n", coords[0:2], coords[2:], p)
 		// see if we may take whats in place A and move it to place B
 		legal = bl.IsLegal(Remove, p, coords[0], coords[1]) && bl.IsLegal(Place, p, coords[2], coords[3])
 	default:
@@ -107,7 +104,6 @@ func (bl *BaseLogic) IsLegal(a Action, p *Player, coords ...int) bool {
 //GetWinner implements the GameLogic interface
 func (bl *BaseLogic) GetWinner() *Player {
 	var winner *Player
-	winner = nil
 	//check horizontally
 	winner = bl.checkHorizontally()
 
@@ -125,18 +121,16 @@ func (bl *BaseLogic) GetWinner() *Player {
 
 func (bl *BaseLogic) checkHorizontally() *Player {
 	var winner *Player
-	var board Board
 	var s string
-	board = *bl.board
 	var streaking string = ""
 	streakLen := 0
-	//fmt.Printf("---- Started Horizontal Check ----\n")
-	for x := 0; x < board.Height(); x++ {
+	//fmt.Printf("---- Started Horizontal Check (%d,%d)----\n", bl.board.Height(), bl.board.Width())
+	for x := 0; x < bl.board.Height(); x++ {
 		//iterate over all fields in a row until
-		for y := 0; y < board.Width(); y++ {
+		for y := 0; y < bl.board.Width(); y++ {
 			//if you find a non-empty field
-			if !(board.IsEmpty(x, y)) {
-				s = board.Get(x, y)
+			if !(bl.board.IsEmpty(x, y)) {
+				s = bl.board.Get(x, y)
 				//if the symbol machtes the current streak
 				if s == streaking {
 					//increase length of current streak
@@ -166,18 +160,16 @@ func (bl *BaseLogic) checkHorizontally() *Player {
 
 func (bl *BaseLogic) checkVertically() *Player {
 	var winner *Player
-	var board Board
 	var s string
-	board = *bl.board
 	var streaking string = ""
 	streakLen := 0
 	//fmt.Printf("---- Started Vertical Check ----\n")
-	for y := 0; y < board.Width(); y++ {
+	for y := 0; y < bl.board.Width(); y++ {
 		//iterate over all fields in a row until
-		for x := 0; x < board.Height(); x++ {
+		for x := 0; x < bl.board.Height(); x++ {
 			//if you find a non-empty field
-			if !(board.IsEmpty(x, y)) {
-				s = board.Get(x, y)
+			if !(bl.board.IsEmpty(x, y)) {
+				s = bl.board.Get(x, y)
 				//if the symbol machtes the current streak
 				if s == streaking {
 					//increase length of current streak
@@ -205,11 +197,10 @@ func (bl *BaseLogic) checkVertically() *Player {
 }
 
 func (bl *BaseLogic) checkDiagonally() *Player {
-	b := (*bl.board)
 	var diagonal []string
 	var p *Player
-	for y := 0; y < b.Height(); y++ {
-		for x := 0; x < b.Width(); x++ {
+	for y := 0; y < bl.board.Height(); y++ {
+		for x := 0; x < bl.board.Width(); x++ {
 			diagonal = bl.getDiagonal(x, y, LeftRight)
 			p = bl.checkSlice(diagonal)
 			if p != nil {
@@ -246,17 +237,16 @@ func (bl *BaseLogic) checkSlice(s []string) *Player {
 
 func (bl *BaseLogic) getDiagonal(x, y int, d Direction) []string {
 	var pieces []string
-	b := (*bl.board)
 	var x1, y1 int
 	if d == LeftRight {
 		fmt.Printf("Getting the LeftRight diagonal starting at (%d,%d)\n", x, y)
-		for x1, y1 = x, y; x1 < b.Height() && y1 < b.Width(); x1, y1 = x1+1, y1+1 {
-			pieces = append(pieces, b.Get(x1, y1))
+		for x1, y1 = x, y; x1 < bl.board.Height() && y1 < bl.board.Width(); x1, y1 = x1+1, y1+1 {
+			pieces = append(pieces, bl.board.Get(x1, y1))
 		}
 	} else if d == RightLeft {
 		fmt.Printf("Getting the RightLeft diagonal starting at (%d,%d)\n", x, y)
-		for x1, y1 = x, y; x1 < b.Height() && y1 >= 0; x1, y1 = x1+1, y1-1 {
-			pieces = append(pieces, b.Get(x1, y1))
+		for x1, y1 = x, y; x1 < bl.board.Height() && y1 >= 0; x1, y1 = x1+1, y1-1 {
+			pieces = append(pieces, bl.board.Get(x1, y1))
 		}
 	}
 	fmt.Printf("Diagonal (%d,%d):%v\n", x, y, pieces)
