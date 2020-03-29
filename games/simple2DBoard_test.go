@@ -1,7 +1,11 @@
 package games
 
-import "testing"
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"reflect"
+	"testing"
+)
 
 func TestNewSimple2DBoard(t *testing.T) {
 	t.Log("Creating 3x3 board")
@@ -105,5 +109,27 @@ func TestReset(t *testing.T) {
 
 	if &b.board == nil {
 		t.Error("Reset failed. Board set to new array")
+	}
+}
+
+func TestMarshalJSON(t *testing.T) {
+	t.Log("Creating 3x3 board")
+	b, _ := NewSimple2DBoard(3, 3)
+
+	b.board[0][0] = "x"
+	b.board[1][1] = "x"
+	b.board[2][2] = "x"
+
+	j, _ := json.Marshal(b)
+	fmt.Println(string(j))
+
+	var a Simple2DBoard
+	e := json.Unmarshal([]byte(`{"Board":[
+		["x","",""],
+		["","x",""],
+		["","","x"]]}`), &a)
+
+	if e != nil || !reflect.DeepEqual(b, &a) {
+		t.Errorf("Unmarshalling previously marshalled Simpel2DBoard failed.JSON: %s Expected: \n%v\n (%T) got \n%v\n (%T)", j, b, b, &a, &a)
 	}
 }

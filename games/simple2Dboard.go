@@ -1,13 +1,25 @@
 package games
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // Simple2DBoard is a simple 2D board with a 2D string array
 type Simple2DBoard struct {
 	board [][]string
 }
 
-// Init initializes a Simple2DBoard given two dimensions
+// JSONSimple2DBoard is used when generating a JSON representation
+type JSONSimple2DBoard struct {
+	Board [][]string
+}
+
+func (js JSONSimple2DBoard) Simple2DBoard() Simple2DBoard {
+	return Simple2DBoard{board: js.Board}
+}
+
+// NewSimple2DBoard initializes a Simple2DBoard given two dimensions
 func NewSimple2DBoard(m, n int) (*Simple2DBoard, error) {
 	if n < 0 || m < 0 {
 		return nil, fmt.Errorf("Both width and height must be positive")
@@ -18,6 +30,10 @@ func NewSimple2DBoard(m, n int) (*Simple2DBoard, error) {
 		b.board[i] = make([]string, n)
 	}
 	return b, nil
+}
+
+func NewJSONSimple2DBoard(s Simple2DBoard) JSONSimple2DBoard {
+	return JSONSimple2DBoard{s.board}
 }
 
 // Set gaming piece at Position p
@@ -79,4 +95,18 @@ func (b *Simple2DBoard) String() string {
 		ret += "\n"
 	}
 	return ret
+}
+
+// MarshalJSON implements the Marshaler interface
+func (s *Simple2DBoard) MarshalJSON() ([]byte, error) {
+	return json.Marshal(NewJSONSimple2DBoard(*s))
+}
+
+func (s *Simple2DBoard) UnmarshalJSON(data []byte) error {
+	var js JSONSimple2DBoard
+	if err := json.Unmarshal(data, &js); err != nil {
+		return err
+	}
+	*s = js.Simple2DBoard()
+	return nil
 }

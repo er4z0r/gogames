@@ -2,8 +2,8 @@ package games
 
 //Player has a name and Symbol
 type Player struct {
-	Name   string
-	Symbol string
+	Name   string `json:"name"`
+	Symbol string `json:"symbol"`
 }
 
 //Board defines functions that a generic game board should implement.
