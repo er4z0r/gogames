@@ -108,11 +108,13 @@ func (bl *BaseLogic) GetWinner() *Player {
 	winner = bl.checkHorizontally()
 
 	if winner == nil {
+		fmt.Printf("Did not find a horizontal win. Checking vertically.\n")
 		//check vertically
 		winner = bl.checkVertically()
 	}
 
 	if winner == nil {
+		fmt.Printf("Did not find a horizontal win. Checking diagonally.\n")
 		//check diagnoally
 		winner = bl.checkDiagonally()
 	}
@@ -125,9 +127,9 @@ func (bl *BaseLogic) checkHorizontally() *Player {
 	var streaking string = ""
 	streakLen := 0
 	//fmt.Printf("---- Started Horizontal Check (%d,%d)----\n", bl.board.Height(), bl.board.Width())
-	for x := 0; x < bl.board.Height(); x++ {
+	for y := 0; y < bl.board.Height(); y++ {
 		//iterate over all fields in a row until
-		for y := 0; y < bl.board.Width(); y++ {
+		for x := 0; x < bl.board.Width(); x++ {
 			//if you find a non-empty field
 			if !(bl.board.IsEmpty(x, y)) {
 				s = bl.board.Get(x, y)
@@ -150,8 +152,10 @@ func (bl *BaseLogic) checkHorizontally() *Player {
 			if streakLen == 3 {
 				return bl.players[streaking]
 			}
-		} //end y
-	} //end x
+		} //end x
+		streaking = ""
+		streakLen = 0
+	} //end y
 
 	//fmt.Printf("---- Finished Horizontal Check ----\n")
 	//return a pointer to the player that has the winning symbol
@@ -163,35 +167,39 @@ func (bl *BaseLogic) checkVertically() *Player {
 	var s string
 	var streaking string = ""
 	streakLen := 0
-	//fmt.Printf("---- Started Vertical Check ----\n")
-	for y := 0; y < bl.board.Width(); y++ {
+	//	fmt.Printf("---- Started Vertical Check ----\n")
+	for x := 0; x < bl.board.Width(); x++ {
 		//iterate over all fields in a row until
-		for x := 0; x < bl.board.Height(); x++ {
+		for y := 0; y < bl.board.Height(); y++ {
 			//if you find a non-empty field
 			if !(bl.board.IsEmpty(x, y)) {
 				s = bl.board.Get(x, y)
+				//				fmt.Printf("Checking (%d,%d,%s)\n", x, y, s)
 				//if the symbol machtes the current streak
 				if s == streaking {
 					//increase length of current streak
 					streakLen++
-					//fmt.Printf("Increased streakLen to %d\n", streakLen)
+					//					fmt.Printf("Increased streakLen to %d\n", streakLen)
 				} else {
 					//start a new streak with that symbol
-					//fmt.Printf("Started new streak for: %s. Starting at (%d,%d)\n", s, x, y)
+					//					fmt.Printf("Started new streak for: %s. Starting at (%d,%d)\n", s, x, y)
 					streaking = s
 					streakLen = 1
 				}
 			} else {
-				//fmt.Printf("Resetting streaks\n")
+				//we've hit an empty field, reset
+				//				fmt.Printf("Resetting streaks\n")
 				streaking = ""
 				streakLen = 0
 			}
 			if streakLen == 3 {
 				return bl.players[streaking]
 			}
-		}
-	}
-	//fmt.Printf("---- Finished Vertical Check ----\n")
+		} //loop y
+		streaking = ""
+		streakLen = 0
+	} //loop x
+	//	fmt.Printf("---- Finished Vertical Check ----\n")
 	//return a pointer to the player that has the winning symbol
 	return winner
 }
@@ -240,12 +248,12 @@ func (bl *BaseLogic) getDiagonal(x, y int, d Direction) []string {
 	var x1, y1 int
 	if d == LeftRight {
 		fmt.Printf("Getting the LeftRight diagonal starting at (%d,%d)\n", x, y)
-		for x1, y1 = x, y; x1 < bl.board.Height() && y1 < bl.board.Width(); x1, y1 = x1+1, y1+1 {
+		for x1, y1 = x, y; x1 < bl.board.Width() && y1 < bl.board.Height(); x1, y1 = x1+1, y1+1 {
 			pieces = append(pieces, bl.board.Get(x1, y1))
 		}
 	} else if d == RightLeft {
 		fmt.Printf("Getting the RightLeft diagonal starting at (%d,%d)\n", x, y)
-		for x1, y1 = x, y; x1 < bl.board.Height() && y1 >= 0; x1, y1 = x1+1, y1-1 {
+		for x1, y1 = x, y; x1 >= 0 && y1 < bl.board.Height(); x1, y1 = x1-1, y1+1 {
 			pieces = append(pieces, bl.board.Get(x1, y1))
 		}
 	}

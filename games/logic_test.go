@@ -62,7 +62,7 @@ func TestMovesRemaining(t *testing.T) {
 
 	if e1 != a1 {
 		t.Errorf("Remaining moves not correct. Expected: %d. Actual: %d", e1, a1)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 
 	}
 
@@ -73,7 +73,7 @@ func TestMovesRemaining(t *testing.T) {
 
 	if e2 != a2 {
 		t.Errorf("Remaining moves not correct. Expected: %d. Actual: %d", e1, a1)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 
 	}
 }
@@ -103,7 +103,7 @@ func TestIsOver(t *testing.T) {
 	a := l.IsOver()
 	if e != a {
 		t.Errorf("IsOver failed. The game has no moves left and no winner. Expected %t Got: %t", e, a)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
@@ -121,7 +121,7 @@ func TestIsLegal(t *testing.T) {
 	a := l.IsLegal(Place, &p1, 0, 0)
 	if a != e {
 		t.Errorf("IsLegal failed. Placing (%d,%d,%s) returned %t, but expected %t", 0, 0, p1.Symbol, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 	b.Set(0, 0, p1.Symbol)
 
@@ -130,7 +130,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Place, &p2, 0, 0)
 	if a != e {
 		t.Errorf("IsLegal failed. Placing (%d,%d,%s) returned %t, but expected %t", 0, 0, p2.Symbol, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//test, that we may not remove a piece that is not ours
@@ -138,7 +138,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Remove, &p2, 0, 0)
 	if a != e {
 		t.Errorf("IsLegal failed. Removing (%d,%d,%s) as %s returned %t, but expected %t", 0, 0, p1.Symbol, p2.Symbol, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//test, that we may remove a piece that is ours
@@ -146,7 +146,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Remove, &p1, 0, 0)
 	if a != e {
 		t.Errorf("IsLegal failed. Removing (%d,%d) returned %t, but expected %t", 0, 0, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//test the we may move a piece that is ours to an empty field
@@ -154,7 +154,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Move, &p1, 0, 0, 0, 1)
 	if a != e {
 		t.Errorf("IsLegal failed. Moving (%d,%d) to (%d,%d) returned %t, but expected %t", 0, 0, 0, 1, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//test the we may move a piece that not ours to an empty field
@@ -162,7 +162,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Move, &p2, 0, 0, 0, 1)
 	if a != e {
 		t.Errorf("IsLegal failed. Moving (%d,%d) to (%d,%d) returned %t, but expected %t", 0, 0, 0, 1, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//test that we may not move a piece that is ours to o non-empty field
@@ -171,7 +171,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Move, &p1, 0, 0, 0, 1)
 	if a != e {
 		t.Errorf("IsLegal failed. Moving (%d,%d) to (%d,%d) returned %t, but expected %t", 0, 0, 0, 1, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//test that we may not move a piece that is not there
@@ -181,7 +181,7 @@ func TestIsLegal(t *testing.T) {
 	a = l.IsLegal(Move, &p1, 0, 0, 0, 1)
 	if a != e {
 		t.Errorf("IsLegal failed. Moving (%d,%d) to (%d,%d) returned %t, but expected %t", 0, 0, 0, 1, a, e)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 }
@@ -209,7 +209,7 @@ func TestGetWinnerVertically(t *testing.T) {
 	a3 := l.GetWinner()
 	if a3 != e3 {
 		t.Errorf("TestGetWinnerVertically failed. Returned %p expected: %p", a3, e3)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
@@ -235,7 +235,7 @@ func TestGetWinnerHorizontally(t *testing.T) {
 	a2 := l.GetWinner()
 	if a2 != e2 {
 		t.Errorf("TestGetWinnerHorizontally failed. Returned %p expected: %p", a2, e2)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
@@ -256,11 +256,10 @@ func TestGetWinnerDiagonalLeftRight(t *testing.T) {
 	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
 	l, _ = NewBaseLogic(&b, &p1, &p2)
 
-	e1 := &p1
 	a1 := l.GetWinner()
-	if a1 != e1 {
-		t.Errorf("TestGetWinnerDiagonalLeftRight failed. Returned %v expected: %v", a1, e1)
-		t.Logf("\n%v\n", b)
+	if a1 != &p1 {
+		t.Errorf("TestGetWinnerDiagonalLeftRight failed. Returned %v expected: %v", a1, &p1)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
@@ -286,109 +285,49 @@ func TestGetWinnerDiagonalRightLeft(t *testing.T) {
 	a4 := l.GetWinner()
 	if a4 != e4 {
 		t.Errorf("TestGetWinnerDiagonalRightLeft failed. Returned %v expected: %v", a4, e4)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
 //GetWinner returns a pointer to the player that has won the game according
 //to the internal rules
 func TestCheckHorizontally(t *testing.T) {
-	var b Board
-	b, _ = NewSimple2DBoard(3, 3)
+	var b Simple2DBoard
+
+	json.Unmarshal([]byte(`{"Board":[
+		["o","o","o"],
+		["x","",""],
+		["x","",""]], "Width":3, "Height":3}`), &b)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
-	var e1 *Player
-	b.Set(0, 0, p1.Symbol)
-	a1 := l.checkHorizontally()
-	if a1 != e1 {
-		t.Errorf("Game ended too early. CheckHorizontally returned %p expected: %p", a1, e1)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e2 *Player
-	b.Set(1, 0, p2.Symbol)
-	a2 := l.checkHorizontally()
-	if a2 != e2 {
-		t.Errorf("Game ended too early. CheckHorizontally returned %p expected: %p", a2, e2)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e3 *Player
-	b.Set(0, 1, p1.Symbol)
-	a3 := l.checkHorizontally()
-	if a3 != e3 {
-		t.Errorf("Game ended too early. CheckHorizontally returned %p expected: %p", a3, e3)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e4 *Player
-	b.Set(2, 0, p2.Symbol)
-	a4 := l.checkHorizontally()
-	if a4 != e4 {
-		t.Errorf("Game ended too late. CheckHorizontally returned %p expected: %p", a4, e4)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e5 = &p1
-	b.Set(0, 2, p1.Symbol)
 	a5 := l.checkHorizontally()
-	if a5 != e5 {
-		t.Errorf("Game ended too late. CheckHorizontally returned %p expected: %p", a5, e5)
-		t.Logf("\n%v\n", b)
+	if a5 != &p1 {
+		t.Errorf("Game ended too late. CheckHorizontally returned %p expected: %p", a5, &p1)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
-func TestCheckVerticaally(t *testing.T) {
-	var b Board
-	b, _ = NewSimple2DBoard(3, 3)
+func TestCheckVertically(t *testing.T) {
+	var b Simple2DBoard
+
+	json.Unmarshal([]byte(`{"Board":[
+		["o","x",""],
+		["o","x",""],
+		["o","",""]], "Width":3, "Height":3}`), &b)
 
 	p1 := Player{Name: "Alice", Symbol: "o"}
 	p2 := Player{Name: "Bob", Symbol: "x"}
 
-	l, _ := NewBaseLogic(b, &p1, &p2)
+	l, _ := NewBaseLogic(&b, &p1, &p2)
 
-	var e1 *Player
-	b.Set(0, 0, p1.Symbol)
-	a1 := l.checkVertically()
-	if a1 != e1 {
-		t.Errorf("Game ended too early. CheckVerticaally returned %p expected: %p", a1, e1)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e2 *Player
-	b.Set(0, 1, p2.Symbol)
-	a2 := l.checkVertically()
-	if a2 != e2 {
-		t.Errorf("Game ended too early. CheckVerticaally returned %p expected: %p", a2, e2)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e3 *Player
-	b.Set(1, 0, p1.Symbol)
-	a3 := l.checkVertically()
-	if a3 != e3 {
-		t.Errorf("Game ended too early. CheckVerticaally returned %p expected: %p", a3, e3)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e4 *Player
-	b.Set(1, 1, p2.Symbol)
-	a4 := l.checkVertically()
-	if a4 != e4 {
-		t.Errorf("Game ended too late. CheckVerticaally returned %p expected: %p", a4, e4)
-		t.Logf("\n%v\n", b)
-	}
-
-	var e5 = &p1
-	b.Set(2, 0, p1.Symbol)
 	a5 := l.checkVertically()
-	if a5 != e5 {
-		t.Errorf("Game ended too late. CheckVerticaally returned %p expected: %p", a5, e5)
-		t.Logf("\n%v\n", b)
+	if a5 != &p1 {
+		t.Errorf("Game ended too late. CheckVerticaally returned %p expected: %p", a5, &p1)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
@@ -410,7 +349,7 @@ func TestCheckDiagonally(t *testing.T) {
 	a1 := l.checkDiagonally()
 	if a1 != e1 {
 		t.Errorf("Game ended too early. CheckDiagonally returned %p expected: %p", a1, e1)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	//o|x|o
@@ -449,21 +388,14 @@ func TestGetDiagonalLeftRight(t *testing.T) {
 	a1 := l.getDiagonal(0, 0, LeftRight)
 	if !reflect.DeepEqual(e1, a1) {
 		t.Errorf("TestGetDiagonal returned %v expected: %v", a1, e1)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
-	e2 := []string{"x", "x"}
+	e2 := []string{"x", "o"}
 	a2 := l.getDiagonal(0, 1, LeftRight)
 	if !reflect.DeepEqual(e2, a2) {
 		t.Errorf("TestGetDiagonal returned %v expected: %v", a2, e2)
-		t.Logf("\n%v\n", b)
-	}
-
-	e3 := []string{"x", "o"}
-	a3 := l.getDiagonal(1, 0, LeftRight)
-	if !reflect.DeepEqual(e3, a3) {
-		t.Errorf("TestGetDiagonal returned %v expected: %v", a3, e3)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 }
 
@@ -484,24 +416,24 @@ func TestGetDiagonalRightLeft(t *testing.T) {
 	l, _ := NewBaseLogic(&b, &p1, &p2)
 
 	e1 := []string{"o", "o", "o"}
-	a1 := l.getDiagonal(0, 2, RightLeft)
+	a1 := l.getDiagonal(2, 0, RightLeft)
 	if !reflect.DeepEqual(e1, a1) {
 		t.Errorf("TestGetDiagonalRightLeft returned %v expected: %v", a1, e1)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	e2 := []string{"x", "x"}
-	a2 := l.getDiagonal(0, 1, RightLeft)
+	a2 := l.getDiagonal(1, 0, RightLeft)
 	if !reflect.DeepEqual(e2, a2) {
 		t.Errorf("TestGetDiagonalRightLeft returned %v expected: %v", a2, e2)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 
 	e3 := []string{"x", "o"}
-	a3 := l.getDiagonal(1, 2, RightLeft)
+	a3 := l.getDiagonal(2, 1, RightLeft)
 	if !reflect.DeepEqual(e3, a3) {
 		t.Errorf("TestGetDiagonalRightLeft returned %v expected: %v", a3, e3)
-		t.Logf("\n%v\n", b)
+		t.Logf("\n%v\n", &b)
 	}
 }
 

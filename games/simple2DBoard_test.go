@@ -34,7 +34,7 @@ func TestSet(t *testing.T) {
 	t.Log("Creating 3x3 board")
 	b, _ := NewSimple2DBoard(3, 3)
 	b.Set(0, 0, "x")
-	s := b.board[0][0]
+	s := b.Get(0, 0)
 	if s != "x" {
 		t.Error(fmt.Sprintf("Invalid result after call to Set"))
 	}
@@ -43,7 +43,7 @@ func TestSet(t *testing.T) {
 func TestGet(t *testing.T) {
 	t.Log("Creating 3x3 board")
 	b, _ := NewSimple2DBoard(3, 3)
-	b.board[0][0] = "x"
+	b.Set(0, 0, "x")
 	s := b.Get(0, 0)
 	if s != "x" {
 		t.Error(fmt.Sprintf("Invalid resuult returned by Get"))
@@ -53,9 +53,9 @@ func TestGet(t *testing.T) {
 func TestRemove(t *testing.T) {
 	t.Log("Creating 3x3 board")
 	b, _ := NewSimple2DBoard(3, 3)
-	b.board[0][0] = "x"
+	b.Set(0, 0, "x")
 	b.Remove(0, 0)
-	if b.board[0][0] == "x" {
+	if b.Get(0, 0) == "x" {
 		t.Error("Remove not successful.")
 	}
 }
@@ -63,12 +63,12 @@ func TestRemove(t *testing.T) {
 func TestMove(t *testing.T) {
 	t.Log("Creating 3x3 board")
 	b, _ := NewSimple2DBoard(3, 3)
-	b.board[0][0] = "x"
+	b.Set(0, 0, "x")
 	b.Move(0, 0, 0, 1)
-	if b.board[0][0] == "x" {
+	if b.Get(0, 0) == "x" {
 		t.Error("Move not successful: Original piece not removed.")
 	}
-	if b.board[0][1] != "x" {
+	if b.Get(0, 1) != "x" {
 		t.Error("Move not successful: New piece not placed.")
 	}
 }

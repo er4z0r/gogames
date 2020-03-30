@@ -44,18 +44,18 @@ func NewJSONSimple2DBoard(s Simple2DBoard) JSONSimple2DBoard {
 
 // Set gaming piece at Position p
 func (b *Simple2DBoard) Set(x, y int, s string) {
-	b.board[x][y] = s
+	b.board[y][x] = s
 }
 
 // Get gaming piece Position p
 func (b *Simple2DBoard) Get(x, y int) string {
-	return b.board[x][y]
+	return b.board[y][x]
 }
 
 //IsEmpty returns true is the board at position x,y
 //is not occupied by a game piece
 func (b *Simple2DBoard) IsEmpty(x, y int) bool {
-	return b.board[x][y] == ""
+	return b.board[y][x] == ""
 }
 
 //Width implements the Board infetface
