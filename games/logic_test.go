@@ -78,6 +78,55 @@ func TestMovesRemaining(t *testing.T) {
 	}
 }
 
+func TestWhoseTurn(t *testing.T) {
+	var b *Simple2DBoard
+	p1 := Player{Name: "Alice", Symbol: "o"}
+	p2 := Player{Name: "Bob", Symbol: "x"}
+
+	b, _ = NewSimple2DBoard(3, 3)
+	l, _ := NewBaseLogic(b, &p1, &p2)
+
+	a := l.WhoseTurn()
+	e := &p1
+	if a != e {
+		t.Errorf("TestWhoseTurn failed. Expected %v got %v", e, a)
+		t.Logf("\n%v\n", b)
+	}
+
+	var b1 Simple2DBoard
+	json.Unmarshal([]byte(`{"Board":[
+			["o","",""],
+			["x","",""],
+			["","",""]],
+			"Width":3,
+			"Height":3}`), &b1)
+
+	l, _ = NewBaseLogic(&b1, &p1, &p2)
+	a = l.WhoseTurn()
+	e = &p1
+	if a != e {
+		t.Errorf("TestWhoseTurn failed. Expected %v got %v", e, a)
+		t.Logf("\n%v\n", &b1)
+	}
+
+	var b2 Simple2DBoard
+	json.Unmarshal([]byte(`{"Board":[
+			["o","",""],
+			["x","",""],
+			["o","",""]],
+			"Width":3,
+			"Height":3}`), &b2)
+
+	l, _ = NewBaseLogic(&b2, &p1, &p2)
+	a = l.WhoseTurn()
+	e = &p2
+	if a != e {
+		t.Errorf("TestWhoseTurn failed. Expected %v got %v", e, a)
+		t.Logf("\n%v\n", &b2)
+	}
+
+}
+
 //IsOver returns true, if a winner exists or there are no moves left
 func TestIsOver(t *testing.T) {
 	var b Simple2DBoard
@@ -87,11 +136,11 @@ func TestIsOver(t *testing.T) {
 
 	//o|x|x
 	//x|o|o
-	//o|x|o
+	//o|o|x
 	json.Unmarshal([]byte(`{"Board":[
 		["o","x","x"],
 		["x","o","o"],
-		["o","x","o"]],
+		["o","o","x"]],
 		"Width":3,
 		"Height":3}`), &b)
 
@@ -184,6 +233,14 @@ func TestIsLegal(t *testing.T) {
 		t.Logf("\n%v\n", &b)
 	}
 
+	//test that any unknown action is not legal
+	e = false
+	a = l.IsLegal(666, &p1, 0, 0, 0, 1)
+	if a != e {
+		t.Errorf("IsLegal failed. Tried doing a non-existent action returned %t, but expected %t", a, e)
+		t.Logf("\n%v\n", &b)
+	}
+
 }
 
 func TestGetWinnerVertically(t *testing.T) {
@@ -209,6 +266,25 @@ func TestGetWinnerVertically(t *testing.T) {
 	a3 := l.GetWinner()
 	if a3 != e3 {
 		t.Errorf("TestGetWinnerVertically failed. Returned %p expected: %p", a3, e3)
+		t.Logf("\n%v\n", &b)
+	}
+
+	//x|o|
+	//x|o|
+	// |o|
+	json.Unmarshal([]byte(`{"Board":[
+		["x","o",""],
+		["x","o",""],
+		["" ,"o",""]], "Width":3, "Height":3}`), &b)
+
+	t.Logf("Unmarshalled board: \n%v\n (%d,%d)", &b, b.Width(), b.Height())
+
+	l, _ = NewBaseLogic(&b, &p1, &p2)
+
+	e4 := &p1
+	a4 := l.GetWinner()
+	if a3 != e4 {
+		t.Errorf("TestGetWinnerVertically failed. Returned %p expected: %p", a4, e4)
 		t.Logf("\n%v\n", &b)
 	}
 }
